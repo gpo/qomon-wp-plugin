@@ -1,0 +1,10 @@
+{
+	"name": "gpo/qomon-wp-plugin",
+	"type": "wordpress-plugin",
+	"description": "Qomon forms for WordPress with server-side manifest caching",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.0",
+		"composer/installers": "^1.0 || ^2.0"
+	}
+}

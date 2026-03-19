@@ -31,6 +31,7 @@ node_modules/
 
 package-lock.json
 
-/build
+# /build is intentionally committed so the plugin installs via Composer without requiring Node
+# build/
 
 .DS_Store
