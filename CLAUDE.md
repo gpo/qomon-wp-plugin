@@ -2,9 +2,7 @@
 
 ## What this plugin does
 
-Embeds Qomon action forms into WordPress pages via a Gutenberg block or `[qomon-form]` shortcode. The original plugin loaded `setup.js` from Qomon's CDN on every page view, which then fetched a versioned `manifest.json` and injected `<script type="module">` tags into the DOM — 2–3 sequential network requests before the form could render.
-
-This version moves all of that work server-side with persistent caching, so the versioned asset URLs are resolved once by PHP and baked directly into the HTML.
+Embeds Qomon action forms into WordPress pages via a Gutenberg block or `[qomon-form]` shortcode. PHP fetches a versioned `manifest.json` from Qomon's CDN, resolves the asset URLs, and writes `<script type="module">` and `data-style-link` directly into the page HTML — no client-side manifest fetching or DOM manipulation.
 
 ## Key files
 
@@ -71,7 +69,7 @@ Commit the updated `build/` directory alongside any `src/` changes.
 - **Single PHP file** — all logic is in `qomon.php`. No autoloader, no classes.
 - **Block registered outside `is_admin()`** — `wpqomon_create_form_block` hooks on `init` unconditionally so the `render_callback` fires on frontend renders. Do not move it inside the admin block.
 - **`save()` returns null** — the block is server-rendered via `render_callback`. If you see Gutenberg block validation errors after editing `save.js`, ensure it still returns `null`.
-- **`form_type`** — selects between the `qomonForm` and `qomonPetition` web components in the manifest. Added in v2.0.0; not present in the upstream Qomon plugin.
-- **`type="module"`** — WordPress's `wp_enqueue_script()` does not support ES modules natively. The `script_loader_tag` filter patches this for any handle prefixed `qomon-form-`.
-- **Cron schedules on activation** — if you update the plugin without deactivating it, the existing cron schedule persists unchanged. If you change the interval, deactivate/reactivate to reschedule.
+- **`form_type`** — selects between the `qomonForm` and `qomonPetition` web components in the manifest. Exposed in both the block inspector (RadioControl) and the shortcode (`type=petition`).
+- **`type="module"`** — `wp_enqueue_script()` does not support ES modules natively. The `script_loader_tag` filter patches this for any handle prefixed `qomon-form-`.
+- **Cron schedules on activation** — if you update the plugin without deactivating it, the existing cron schedule persists unchanged. Deactivate/reactivate to reschedule after changing the interval.
 - **Composer install path** — consuming projects should configure `composer/installers` to place `wordpress-plugin` packages in the correct directory (e.g. `web/plugins/{$name}` in Bedrock-style setups).
