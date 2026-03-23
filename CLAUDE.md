@@ -37,13 +37,14 @@ docs/
 
 ## Caching behaviour
 
-Manifest resolution follows this priority chain — see `docs/architecture.md` for full details:
+Manifests are stored in `wp_options` with a `fetched_at` timestamp. Resolution order — see `docs/architecture.md` for full details:
 
-1. **Transient** (2-hour TTL, uses object cache if available)
-2. **Live CDN fetch** (writes through to both transient and `wp_options`)
-3. **`wp_options` stale copy** (survives object cache flushes and CDN outages)
+1. **Cached copy < 2h old** → serve immediately
+2. **Live CDN fetch** → store with fresh timestamp → serve
+3. **Stale copy < 4h old** → serve with a logged warning (CDN unreachable)
+4. **No usable copy** → return false → HTML comment placeholder
 
-The hourly WP-Cron job (`qomon_refresh_manifests`) force-refreshes all registered forms before the transient expires, so page renders almost always hit the transient fast path.
+The hourly WP-Cron job (`qomon_refresh_manifests`) refreshes all registered forms before the 2h threshold, so page renders almost always hit the fast path.
 
 ## Adding new forms / cache priming
 

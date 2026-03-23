@@ -1,23 +1,36 @@
-/**
- * Retrieves the translation of text.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
- */
 import { __ } from '@wordpress/i18n';
-
-import { TextControl, RadioControl } from '@wordpress/components';
-
+import { useState } from '@wordpress/element';
+import { TextControl, RadioControl, Button } from '@wordpress/components';
 import { useBlockProps, BlockControls } from '@wordpress/block-editor';
+import apiFetch from '@wordpress/api-fetch';
 
-/**
- * The edit function describes the structure of your block in the context of the
- * editor. This represents what the editor will render when the block is used.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
- *
- * @return {WPElement} Element to render.
- */
 export default function Edit( { attributes, setAttributes } ) {
+	const [ refreshState, setRefreshState ] = useState( 'idle' );
+
+	const handleRefresh = () => {
+		setRefreshState( 'loading' );
+		apiFetch( {
+			path: '/qomon/v1/refresh-manifest',
+			method: 'POST',
+			data: { base_id: attributes.base_id },
+		} )
+			.then( () => {
+				setRefreshState( 'success' );
+				setTimeout( () => setRefreshState( 'idle' ), 3000 );
+			} )
+			.catch( () => {
+				setRefreshState( 'error' );
+				setTimeout( () => setRefreshState( 'idle' ), 3000 );
+			} );
+	};
+
+	const refreshLabel = {
+		idle: __( 'Refresh cache', 'qomon' ),
+		loading: __( 'Refreshing…', 'qomon' ),
+		success: __( 'Cache refreshed', 'qomon' ),
+		error: __( 'Refresh failed — check CDN', 'qomon' ),
+	}[ refreshState ];
+
 	return (
 		<div { ...useBlockProps() }>
 			{ <BlockControls /> }
@@ -33,11 +46,18 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ label: 'Form', value: '' },
 					{ label: 'Petition', value: 'petition' },
 				] }
-				onChange={ ( val ) => { 
-					setAttributes( { form_type: val } );
-				}}
+				onChange={ ( val ) => setAttributes( { form_type: val } ) }
 			/>
-
+			{ attributes.base_id && (
+				<Button
+					variant="secondary"
+					onClick={ handleRefresh }
+					disabled={ refreshState === 'loading' }
+					isDestructive={ refreshState === 'error' }
+				>
+					{ refreshLabel }
+				</Button>
+			) }
 		</div>
 	);
 }
