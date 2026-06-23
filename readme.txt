@@ -44,6 +44,25 @@ To go further in the customization of this one, or for any help concerning the p
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Add a shortcode, enter [qomon-form id=your-form-id] in it. Or, add a new block, choose Qomon Form, and paste your form id in it.
 
+== Developer Workflow ==
+
+Use git subtree to develop this plugin inside another WordPress project while keeping this repository as the source package.
+
+From the consuming project:
+
+`git remote add qomon-wp-plugin https://github.com/gpo/qomon-wp-plugin.git`
+
+`git subtree add --prefix=wp-content/plugins/qomon-wp-plugin qomon-wp-plugin master --squash`
+
+After committing plugin changes in the consuming project:
+
+`git subtree push --prefix=wp-content/plugins/qomon-wp-plugin qomon-wp-plugin master`
+
+To pull plugin repository changes into the consuming project:
+
+`git subtree pull --prefix=wp-content/plugins/qomon-wp-plugin qomon-wp-plugin master --squash`
+
+
 == Screenshots ==
 
 1. Search the Qomon Form Block.
