@@ -46,22 +46,23 @@ To go further in the customization of this one, or for any help concerning the p
 
 == Developer Workflow ==
 
-Use git subtree to develop this plugin inside another WordPress project while keeping this repository as the source package.
+<plugin-path> for Bedrock: `web/app/plugins/qomon-wp-plugin`
 
-From the consuming project:
+<plugin-path> for Standard WordPress: `wp-content/plugins/qomon-wp-plugin`
+
+To create a subtree in your repo:
 
 `git remote add qomon-wp-plugin https://github.com/gpo/qomon-wp-plugin.git`
 
-`git subtree add --prefix=wp-content/plugins/qomon-wp-plugin qomon-wp-plugin master --squash`
+`git subtree add --prefix=<plugin-path> qomon-wp-plugin master --squash`
 
-After committing plugin changes in the consuming project:
+After making changes to the plugin:
 
-`git subtree push --prefix=wp-content/plugins/qomon-wp-plugin qomon-wp-plugin master`
+`git subtree push --prefix=<plugin-path> qomon-wp-plugin master`
 
-To pull plugin repository changes into the consuming project:
+Pull new changes from plugin:
 
-`git subtree pull --prefix=wp-content/plugins/qomon-wp-plugin qomon-wp-plugin master --squash`
-
+`git subtree pull --prefix=<plugin-path> qomon-wp-plugin master --squash`
 
 == Screenshots ==
 
