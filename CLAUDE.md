@@ -65,6 +65,12 @@ Commit the updated `build/` directory alongside any `src/` changes.
 
 **PHP changes** require no build step — edit `qomon.php` directly.
 
+**Verification before pushing:** `pnpm lint:js && pnpm test:js && vendor/bin/phpcs`. PHP tests (`pnpm test:php`) need wp-env/Docker — local only.
+
+## Cloud agent sessions (Claude Code on the web)
+
+`.claude/hooks/session-start.sh` runs `pnpm install` and extracts the PHP dev tooling (phpcs, wpcs) from the `claude-vendor-cache` orphan branch, built by `.github/workflows/build-vendor-cache.yml` — `composer install` itself cannot reach GitHub dists through the session proxy.
+
 ## Things to know before making changes
 
 - **Single PHP file** — all logic is in `qomon.php`. No autoloader, no classes.
