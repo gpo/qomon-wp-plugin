@@ -13,23 +13,16 @@ cd "$CLAUDE_PROJECT_DIR"
 echo "==> pnpm install"
 pnpm install || echo "!! pnpm install failed - JS build/lint/tests unavailable"
 
-# composer install cannot work here (GitHub dist downloads 403 through the
-# session proxy). CI builds the PHP dev tooling and force-pushes it to the
-# orphan branch claude-vendor-cache (see
-# .github/workflows/build-vendor-cache.yml), which we CAN fetch.
+# Composer's deps here are all small and public, so a direct install works
+# even in-session (composer falls back to cloning from source when GitHub
+# dist zipballs 403 through the session proxy). No cache needed.
 if [ -d vendor ]; then
-  echo "==> vendor/ already present (cached container) - skipping vendor cache fetch"
-elif git fetch --depth 1 origin claude-vendor-cache 2>/dev/null; then
-  echo "==> extracting composer vendor cache from claude-vendor-cache branch"
-  git ls-tree --name-only FETCH_HEAD \
-    | grep '^vendor-cache\.tar\.gz\.part-' \
-    | sort \
-    | while read -r part; do git cat-file blob "FETCH_HEAD:$part"; done \
-    | tar xz \
-    && echo "==> vendor cache extracted" \
-    || echo "!! vendor cache extraction failed - phpcs unavailable this session"
+  echo "==> vendor/ already present (cached container) - skipping composer install"
+elif COMPOSER_ALLOW_SUPERUSER=1 timeout 180 composer install --no-interaction; then
+  echo "==> composer install succeeded"
 else
-  echo "!! claude-vendor-cache branch not found - run the 'Build vendor cache for cloud agent sessions' workflow once on the default branch. phpcs unavailable until then."
+  echo "!! composer install failed or timed out - phpcs unavailable this session"
+  rm -rf vendor
 fi
 
 echo "==> session-start hook complete"

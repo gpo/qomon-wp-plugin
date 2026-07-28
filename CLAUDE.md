@@ -69,7 +69,7 @@ Commit the updated `build/` directory alongside any `src/` changes.
 
 ## Cloud agent sessions (Claude Code on the web)
 
-`.claude/hooks/session-start.sh` runs `pnpm install` and extracts the PHP dev tooling (phpcs, wpcs) from the `claude-vendor-cache` orphan branch, built by `.github/workflows/build-vendor-cache.yml` — `composer install` itself cannot reach GitHub dists through the session proxy.
+`.claude/hooks/session-start.sh` runs `pnpm install` and `composer install`. This repo's composer deps are all small and public, so the install works directly in the sandbox (composer falls back to cloning from source when GitHub dist zipballs 403 through the session proxy).
 
 ## Things to know before making changes
 
